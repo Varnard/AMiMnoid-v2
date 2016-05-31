@@ -5,57 +5,65 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.makeinfo.andenginetemplate.TextureMap;
 
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
+import org.andengine.extension.physics.box2d.PhysicsFactory;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.vbo.VertexBufferObject;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 
 public class Ball extends Sprite {
 
-    private float maxSpeed;
-    private float speedX;
-    private float speedY;
+    private static float maxSpeed;
+    final FixtureDef objectFixtureDef = PhysicsFactory.createFixtureDef(1, 1, 0);
+    private Body body;
 
-    public Ball(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager)
+    public Ball(float pX, float pY, double angle,VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld physicsWorld)
     {
         super(pX,pY, TextureMap.getInstance().get("ball"),pVertexBufferObjectManager);
-        maxSpeed=4;
-        speedX= (float)Math.sin(340)*maxSpeed;
-        speedY= (float)Math.cos(340)*maxSpeed;
+        maxSpeed=8;
+        body = PhysicsFactory.createCircleBody(physicsWorld,this, BodyDef.BodyType.DynamicBody,objectFixtureDef);
+        body.setUserData("ball");
+        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this,body,true,true));
+        body.setLinearVelocity(Ball.computeVelocity(angle));
     }
 
-    public void setSpeed(double angle)
+    public static Vector2 computeVelocity(double angle)
     {
-        speedX=maxSpeed*(float)Math.sin(angle);
-        speedY=maxSpeed*(float)Math.cos(angle);
+        float velX=maxSpeed*(float)Math.sin(Math.toRadians(angle));
+        float velY=maxSpeed*(float)Math.cos(Math.toRadians(angle));
+        return new Vector2(velX,velY);
     }
 
-    public void setSpeedX(float speedX) {
-        this.speedX = speedX;
+    public Body getBody() {
+        return body;
     }
 
-    public void setSpeedY(float speedY) {
-        this.speedY = speedY;
-    }
-
-    public void reverseSpeedX()
+    public void setVelocityX(float velX)
     {
-        speedX*=-1;
+        body.setLinearVelocity(velX,body.getLinearVelocity().y);
     }
 
-    public void reverseSpeedY()
+    public void setVelocityY(float velY)
     {
-        speedY*=-1;
+        body.setLinearVelocity(body.getLinearVelocity().x,velY);
     }
 
-
-    public void move()
+    public void reverseVelocityX()
     {
-        this.setX(this.getX()+speedX);
-        this.setY(this.getY()+speedY);
+        body.setLinearVelocity(body.getLinearVelocity().x*-1,body.getLinearVelocity().y);
     }
 
-}
+    public void reverseVelocityY()
+    {
+        body.setLinearVelocity(body.getLinearVelocity().x,body.getLinearVelocity().y*-1);
+    }
+
+ }

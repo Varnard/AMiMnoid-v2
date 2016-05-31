@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="debug"><source path="C:\Users\Varn\AndroidStudioProjects\AndEngineTemplate\andEngine\build\intermediates\bundles\debug\assets"/></dataSet><dataSet config="main"><source path="C:\Users\Varn\AndroidStudioProjects\AndEngineTemplate\andEngine\src\androidTest\assets"/></dataSet></merger>
+<merger version="3"><dataSet config="debug"><source path="C:\Users\Varn\AndroidStudioProjects\AMiMnoid-v2\andEngine\build\intermediates\bundles\debug\assets"/></dataSet><dataSet config="main"><source path="C:\Users\Varn\AndroidStudioProjects\AMiMnoid-v2\andEngine\src\androidTest\assets"/></dataSet></merger>
