@@ -5,7 +5,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.makeinfo.andenginetemplate.TextureMap;
 
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
@@ -13,27 +12,32 @@ import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import java.util.ArrayList;
+
 public class Platform extends Sprite {
 
     private float maxSpeed;
     private boolean magnet;
     private float target;
-    private final FixtureDef objectFixtureDef = PhysicsFactory.createFixtureDef(1, 1, 0);
     private Body body;
     float ptm;
+
+    private ArrayList<Ball> attachedBalls;
 
 
     public Platform(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld physicsWorld)
     {
-        super(pX,pY, TextureMap.getInstance().get("platform"),pVertexBufferObjectManager);
+        super(pX-64,pY, TextureMap.getInstance().get("platform"),pVertexBufferObjectManager);
         ptm=32;
-        maxSpeed=8;
-        magnet=false;
+        maxSpeed=10;
+        magnet=true;
         target=pX;
-        body = PhysicsFactory.createBoxBody(physicsWorld,this, BodyDef.BodyType.DynamicBody, objectFixtureDef);
+        body = PhysicsFactory.createBoxBody(physicsWorld,this, BodyDef.BodyType.KinematicBody, Game.PLATFORM_FIXTURE_DEF);
         body.getPosition().x=pX;
         body.setUserData("platform");
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(this,body,true,false));
+        attachedBalls = new ArrayList<>();
+
     }
 
     public void setMagnet(boolean magnet) {
@@ -48,11 +52,26 @@ public class Platform extends Sprite {
         this.target = target;
     }
 
+    public synchronized void attachBall(Ball ball)
+    {
+        ball.getBody().setUserData("attached");
+        ball.getBody().setLinearVelocity(0,0);
+        attachedBalls.add((ball));
+    }
+
     public Body getBody() {
         return body;
     }
 
-    public void move()
+    public boolean isMagnetActive() {
+        return magnet;
+    }
+
+    public ArrayList<Ball> getAttachedBalls() {
+        return attachedBalls;
+    }
+
+    public synchronized void move()
     {
         float difference = body.getPosition().x*ptm-target;
         if (difference>0)
@@ -72,6 +91,11 @@ public class Platform extends Sprite {
             else  body.setLinearVelocity(-difference,0);
         }
         else body.setLinearVelocity(0,0);
+
+        for (Ball ball : attachedBalls)
+        {
+            ball.getBody().setLinearVelocity(body.getLinearVelocity());
+        }
 
     }
 

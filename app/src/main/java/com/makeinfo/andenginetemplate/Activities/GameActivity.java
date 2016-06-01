@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.makeinfo.andenginetemplate.MapLoader;
 import com.makeinfo.andenginetemplate.Objects.Game;
 import com.makeinfo.andenginetemplate.TextureMap;
 
@@ -59,6 +60,8 @@ public class GameActivity extends SimpleBaseGameActivity {
     @Override
     protected Scene onCreateScene()
     {
+        MapLoader.setContext(this);
+
         Scene scene = new Scene();
         physicsWorld = new FixedStepPhysicsWorld(30,new Vector2(0,0),false)
         {
@@ -82,12 +85,18 @@ public class GameActivity extends SimpleBaseGameActivity {
     @Override
     protected void onCreateResources()
     {
-        BitmapTextureAtlas atlas = new BitmapTextureAtlas(getTextureManager(), 128, 64, TextureOptions.DEFAULT);
+        BitmapTextureAtlas atlas = new BitmapTextureAtlas(getTextureManager(), 128, 128, TextureOptions.DEFAULT);
         HashMap<String,TextureRegion> textures = TextureMap.getInstance();
         TextureRegion ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "ball.png",0,0);
-        TextureRegion platformTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "platform.png", 0, 32);
+        TextureRegion platformTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "platform.png", 0, 24);
+        TextureRegion block1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "block1.png",0,48);
+        TextureRegion block2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "block2.png",0,72);
+        TextureRegion block3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "block3.png",0,96);
         textures.put("ball",ballTextureRegion);
         textures.put("platform",platformTextureRegion);
+        textures.put("block1",block1TextureRegion);
+        textures.put("block2",block2TextureRegion);
+        textures.put("block3",block3TextureRegion);
         atlas.load();
     }
 
