@@ -1,3 +1,5 @@
+
+
 package com.makeinfo.andenginetemplate.Activities;
 
 import android.app.Activity;
@@ -7,10 +9,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.makeinfo.andenginetemplate.Activities.GameActivity;
 import com.makeinfo.andenginetemplate.R;
 
-
-public class MenuActivity extends Activity {
+public class TimeraceLSActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,31 +22,12 @@ public class MenuActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_menu);
+        setContentView(R.layout.activity_timerace_ls);
     }
 
     public void start(View view)
     {
-        Intent intent = new Intent(this, ModeSelectActivity.class);
+        Intent intent = new Intent(this, GameActivity.class);
         startActivity(intent);
     }
-
-    public void resume(View view)
-    {
-
-    }
-
-    public void configureOptions(View view)
-    {
-
-    }
-
-    public void checkHighscores(View view)
-    {
-
-    }
-
-
-
-
 }
