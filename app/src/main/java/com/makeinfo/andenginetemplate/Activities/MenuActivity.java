@@ -31,7 +31,8 @@ public class MenuActivity extends Activity {
 
     public void resume(View view)
     {
-
+        Intent intent = new Intent(this, GameActivity.class);
+        startActivity(intent);
     }
 
     public void configureOptions(View view)

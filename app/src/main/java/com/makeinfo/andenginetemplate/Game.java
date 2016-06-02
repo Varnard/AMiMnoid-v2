@@ -1,4 +1,4 @@
-package com.makeinfo.andenginetemplate.Objects;
+package com.makeinfo.andenginetemplate;
 
 
 import com.badlogic.gdx.physics.box2d.Body;
@@ -10,6 +10,9 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.makeinfo.andenginetemplate.MapLoader;
+import com.makeinfo.andenginetemplate.Objects.Ball;
+import com.makeinfo.andenginetemplate.Objects.Block;
+import com.makeinfo.andenginetemplate.Objects.Platform;
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.scene.IOnSceneTouchListener;
@@ -26,9 +29,9 @@ import java.util.List;
 
 public class Game {
 
-    private Platform platform;
-    private ArrayList<Ball> balls;
-    private Block[][] blocks;
+    protected Platform platform;
+    protected ArrayList<Ball> balls;
+    protected Block[][] blocks;
     private Body leftWall;
     private Body rightWall;
     private Body ceiling;
@@ -86,12 +89,12 @@ public class Game {
         balls.add(startBall);
         platform.attachBall(startBall);
 
-        Ball startBall2 = new Ball(270,600,120,vboManager,physicsWorld);
+        /*Ball startBall2 = new Ball(270,600,120,vboManager,physicsWorld);
         balls.add(startBall2);
         Ball startBall3 = new Ball(400,700,120,vboManager,physicsWorld);
         balls.add(startBall3);
         Ball startBall4 = new Ball(70,800,120,vboManager,physicsWorld);
-        balls.add(startBall4);
+        balls.add(startBall4);*/
 
 
         int[][] z= MapLoader.getLevel("asdf",0);
@@ -202,7 +205,7 @@ public class Game {
         }
     }
 
-    private synchronized void updateObjects()
+    protected synchronized void updateObjects()
     {
         for (int i=0;i<8;i++)
         {
@@ -265,6 +268,7 @@ public class Game {
         if (platform.getBody().getUserData().equals("launch"))
         {
             platform.getBody().setUserData("platform");
+            platform.setMagnet(false);
             final ArrayList<Ball> attachedBalls = platform.getAttachedBalls();
             for (Ball ball : attachedBalls)
             {
@@ -287,7 +291,7 @@ public class Game {
     }
 
 
-    private ContactListener createContactListener()
+    protected ContactListener createContactListener()
     {
         ContactListener contactListener = new ContactListener()
         {

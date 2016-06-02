@@ -3,7 +3,7 @@ package com.makeinfo.andenginetemplate.Objects;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.makeinfo.andenginetemplate.Game;
 import com.makeinfo.andenginetemplate.TextureMap;
 
 import org.andengine.entity.sprite.Sprite;
@@ -22,7 +22,7 @@ public class Ball extends Sprite {
     {
         super(pX,pY, TextureMap.getInstance().get("ball"),pVertexBufferObjectManager);
         maxSpeed=8;
-        body = PhysicsFactory.createCircleBody(physicsWorld,this, BodyDef.BodyType.DynamicBody,Game.BALL_FIXTURE_DEF);
+        body = PhysicsFactory.createCircleBody(physicsWorld,this, BodyDef.BodyType.DynamicBody, Game.BALL_FIXTURE_DEF);
         body.setUserData("ball");
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(this,body,true,false));
         body.setLinearVelocity(Ball.computeVelocity(angle));

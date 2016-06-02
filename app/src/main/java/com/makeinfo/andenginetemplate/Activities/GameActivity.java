@@ -1,26 +1,19 @@
 package com.makeinfo.andenginetemplate.Activities;
 
+import android.os.Bundle;
+
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.makeinfo.andenginetemplate.MapLoader;
-import com.makeinfo.andenginetemplate.Objects.Game;
+import com.makeinfo.andenginetemplate.Game;
+import com.makeinfo.andenginetemplate.SnakeGame;
 import com.makeinfo.andenginetemplate.TextureMap;
 
-import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.options.EngineOptions;
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
-import org.andengine.extension.physics.box2d.PhysicsWorld;
-import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
@@ -73,12 +66,20 @@ public class GameActivity extends SimpleBaseGameActivity {
             }
         };
 
-        scene.setBackground(new Background(0.5f,0,1));
+        scene.setBackground(new Background(0.6f,0.6f,0.6f));
 
         mEngine.registerUpdateHandler(physicsWorld);
 
+        Bundle parameters = getIntent().getExtras();
+        if(parameters != null && parameters.containsKey("mode"))
+        {
+            if (parameters.getString("mode").equals("snake"))
+            {
+                game = new SnakeGame(scene, mEngine, physicsWorld);
+            }
+        }
+        else game = new Game(scene, mEngine, physicsWorld);
 
-        game = new Game(scene, mEngine, physicsWorld);
         return scene;
     }
 
