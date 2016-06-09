@@ -4,9 +4,11 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.math.Vector2;
 import com.makeinfo.andenginetemplate.MapLoader;
-import com.makeinfo.andenginetemplate.Game;
-import com.makeinfo.andenginetemplate.SnakeGame;
+import com.makeinfo.andenginetemplate.Games.Game;
+import com.makeinfo.andenginetemplate.Games.MirrorGame;
+import com.makeinfo.andenginetemplate.Games.SnakeGame;
 import com.makeinfo.andenginetemplate.TextureMap;
+import com.makeinfo.andenginetemplate.Games.TimeraceGame;
 
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.entity.scene.Scene;
@@ -30,8 +32,6 @@ import java.util.HashMap;
 public class GameActivity extends SimpleBaseGameActivity {
 
     private Game game;
-    private FixedStepPhysicsWorld physicsWorld;
-    private Camera camera;
     private static final int CAMERA_WIDTH = 540;
     private static final int CAMERA_HEIGHT = 960;
 
@@ -39,7 +39,7 @@ public class GameActivity extends SimpleBaseGameActivity {
     @Override
     public EngineOptions onCreateEngineOptions()
     {
-        camera = new Camera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT);
+        Camera camera = new Camera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT);
 
         RatioResolutionPolicy ratioResolutionPolicy = new RatioResolutionPolicy(
                 GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT);
@@ -56,11 +56,9 @@ public class GameActivity extends SimpleBaseGameActivity {
         MapLoader.setContext(this);
 
         Scene scene = new Scene();
-        physicsWorld = new FixedStepPhysicsWorld(30,new Vector2(0,0),false)
-        {
+        FixedStepPhysicsWorld physicsWorld = new FixedStepPhysicsWorld(30, new Vector2(0, 0), false) {
             @Override
-            public void onUpdate(float pSecondsElapsed)
-            {
+            public void onUpdate(float pSecondsElapsed) {
                 super.onUpdate(pSecondsElapsed);
                 game.update();
             }
@@ -75,10 +73,20 @@ public class GameActivity extends SimpleBaseGameActivity {
         {
             if (parameters.getString("mode").equals("snake"))
             {
-                game = new SnakeGame(scene, mEngine, physicsWorld);
+                game = new SnakeGame("snake",1,scene, mEngine, physicsWorld);
+            }
+
+            if (parameters.getString("mode").equals("timerace"))
+            {
+                game = new TimeraceGame("timerace",1,scene, mEngine, physicsWorld);
+            }
+
+            if (parameters.getString("mode").equals("mirror"))
+            {
+                game = new MirrorGame("mirror",1,scene, mEngine, physicsWorld);
             }
         }
-        else game = new Game(scene, mEngine, physicsWorld);
+        else game = new Game("classic",1,scene, mEngine, physicsWorld);
 
         return scene;
     }
@@ -88,11 +96,11 @@ public class GameActivity extends SimpleBaseGameActivity {
     {
         BitmapTextureAtlas atlas = new BitmapTextureAtlas(getTextureManager(), 128, 128, TextureOptions.DEFAULT);
         HashMap<String,TextureRegion> textures = TextureMap.getInstance();
-        TextureRegion ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "ball.png",0,0);
-        TextureRegion platformTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "platform.png", 0, 24);
-        TextureRegion block1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "block1.png",0,48);
-        TextureRegion block2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "block2.png",0,72);
-        TextureRegion block3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "block3.png",0,96);
+        TextureRegion ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/ball.png",0,0);
+        TextureRegion platformTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/platform.png", 0, 24);
+        TextureRegion block1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block1.png",0,48);
+        TextureRegion block2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block2.png",0,72);
+        TextureRegion block3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block3.png",0,96);
         textures.put("ball",ballTextureRegion);
         textures.put("platform",platformTextureRegion);
         textures.put("block1",block1TextureRegion);

@@ -2,7 +2,7 @@ package com.makeinfo.andenginetemplate.Objects;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.makeinfo.andenginetemplate.Game;
+import com.makeinfo.andenginetemplate.Games.Game;
 import com.makeinfo.andenginetemplate.TextureMap;
 
 import org.andengine.entity.sprite.Sprite;

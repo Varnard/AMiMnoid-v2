@@ -1,4 +1,4 @@
-package com.makeinfo.andenginetemplate;
+package com.makeinfo.andenginetemplate.Games;
 
 
 import com.badlogic.gdx.physics.box2d.Body;
@@ -18,28 +18,26 @@ import org.andengine.engine.Engine;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
-import org.andengine.extension.physics.box2d.PhysicsConnectorManager;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Game {
 
     protected Platform platform;
     protected ArrayList<Ball> balls;
     protected Block[][] blocks;
-    private Body leftWall;
-    private Body rightWall;
-    private Body ceiling;
-    private Body ground;
+    protected Body leftWall;
+    protected Body rightWall;
+    protected Body ceiling;
+    protected Body ground;
 
-    private Scene scene;
-    private Engine mEngine;
-    private PhysicsWorld physicsWorld;
+    protected Scene scene;
+    protected Engine mEngine;
+    protected PhysicsWorld physicsWorld;
 
     /* The categories. */
     public static final short CATEGORYBIT_WALL = 1;
@@ -59,7 +57,7 @@ public class Game {
     public static final FixtureDef BALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BALL, MASKBITS_BALL, (short)0);
 
 
-    public Game(Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
+    public Game(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
     {
         physicsWorld.setContactListener(createContactListener());
 
@@ -72,32 +70,56 @@ public class Game {
 
         VertexBufferObjectManager vboManager = mEngine.getVertexBufferObjectManager();
 
+        createWalls(width,height);
+
+        createPlatform(width,height,vboManager);
+
+        createBalls(width,height,vboManager);
+
+        createBlocks(mode,level,vboManager);
+
+        scene.setOnSceneTouchListener(createTouchListener(width));
+
+    }
+
+    protected void createPlatform(float width, float height, VertexBufferObjectManager vboManager)
+    {
+        platform = new Platform(width/2,height-160,vboManager,physicsWorld);
+        scene.attachChild(platform);
+    }
+
+    protected void createBalls(float width, float height, VertexBufferObjectManager vboManager)
+    {
         balls=new ArrayList<>();
 
-        leftWall= PhysicsFactory.createBoxBody(physicsWorld,0,height/2,1,height, BodyDef.BodyType.StaticBody,WALL_FIXTURE_DEF);
-        leftWall.setUserData("sideWall");
-        rightWall= PhysicsFactory.createBoxBody(physicsWorld,width,height/2,1,height, BodyDef.BodyType.StaticBody,WALL_FIXTURE_DEF);
-        rightWall.setUserData("sideWall");
-        ceiling= PhysicsFactory.createBoxBody(physicsWorld,width/2,0,width,1,BodyDef.BodyType.StaticBody,WALL_FIXTURE_DEF);
-        ceiling.setUserData("ceiling");
-        ground= PhysicsFactory.createBoxBody(physicsWorld,width/2,height,width,1,BodyDef.BodyType.StaticBody,WALL_FIXTURE_DEF);
-        ground.setUserData("ground");
-
-        platform = new Platform(width/2,height-160,vboManager,physicsWorld);
-
-        Ball startBall = new Ball(270,800,120,vboManager,physicsWorld);
+        Ball startBall = new Ball(width/2,height-160,120,vboManager,physicsWorld);
         balls.add(startBall);
         platform.attachBall(startBall);
 
-        /*Ball startBall2 = new Ball(270,600,120,vboManager,physicsWorld);
-        balls.add(startBall2);
-        Ball startBall3 = new Ball(400,700,120,vboManager,physicsWorld);
-        balls.add(startBall3);
-        Ball startBall4 = new Ball(70,800,120,vboManager,physicsWorld);
-        balls.add(startBall4);*/
+        for (Ball ball : balls)
+        {
+            scene.attachChild(ball);
+        }
+    }
 
+    protected void createWalls(float width, float height)
+    {
+        leftWall = PhysicsFactory.createBoxBody(physicsWorld, 0, height / 2, 1, height, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
+        leftWall.setUserData("sideWall");
+        rightWall = PhysicsFactory.createBoxBody(physicsWorld, width, height / 2, 1, height, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
+        rightWall.setUserData("sideWall");
+        ceiling = PhysicsFactory.createBoxBody(physicsWorld, width / 2, 0, width, 1, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
+        ceiling.setUserData("ceiling");
+        ground = PhysicsFactory.createBoxBody(physicsWorld, width / 2, height, width, 1, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
+        ground.setUserData("ground");
+    }
 
-        int[][] z= MapLoader.getLevel("asdf",0);
+    protected void createBlocks(String mode, int level, VertexBufferObjectManager vboManager)
+    {
+        int[][] z= MapLoader.getLevel(mode,level);
+
+        float offset=2;
+        if (mode.equals("mirror"))offset=202;
 
         blocks = new Block[16][8];
         float spacingX = (mEngine.getCamera().getWidth()-64*8)/9;
@@ -110,67 +132,47 @@ public class Game {
                 {
                     case 1:
                     {
-                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+2, "block1", vboManager, physicsWorld);
+                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+offset, "block1", vboManager, physicsWorld);
                         break;
                     }
 
                     case 2:
                     {
-                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+2, "block2", vboManager, physicsWorld);
+                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+offset, "block2", vboManager, physicsWorld);
                         break;
                     }
 
                     case 3:
                     {
-                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+2, "block3", vboManager, physicsWorld);
+                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+offset, "block3", vboManager, physicsWorld);
                         break;
                     }
 
                 }
-
-                scene.attachChild(blocks[j][i]);
+                if (blocks[j][i]!=null)scene.attachChild(blocks[j][i]);
             }
 
         }
-
-        scene.attachChild(platform);
-
-        for (Ball ball : balls)
-        {
-            scene.attachChild(ball);
-        }
-
-        scene.setOnSceneTouchListener(new IOnSceneTouchListener() {
-            @Override
-            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent)
-            {
-                float touchX = pSceneTouchEvent.getX();
-
-                if(touchX>width - 1 - platform.getWidth()/2)
-                {
-                    platform.setTarget(width- platform.getWidth()/2-1);
-                }
-                else if(touchX< platform.getWidth()/2+1) platform.setTarget(platform.getWidth()/2+1);
-                else platform.setTarget(touchX);
-
-                if (pSceneTouchEvent.isActionUp())
-                {
-                    platform.getBody().setUserData("launch");
-                }
-
-                return false;
-
-
-            }
-        });
-
     }
 
+    protected void destroyPlatform()
+    {
+        platform.getBody().setActive(false);
+        scene.detachChild(platform);
+    }
 
+    protected void destroyBalls()
+    {
+        for (Ball ball : balls)
+        {
+            scene.detachChild(ball);
+            ball.getBody().setActive(false);
+            balls.remove(ball);
+        }
+    }
 
     public void update()
     {
-        platform.move();
         updateObjects();
         if (noBallsLeft())softReset();
     }
@@ -182,27 +184,17 @@ public class Game {
     }
     public synchronized void softReset()
     {
-        platform.getBody().setActive(false);
-        scene.detachChild(platform);
+        destroyPlatform();
+        destroyBalls();
 
+        final float height = mEngine.getCamera().getHeight();
+        final float width = mEngine.getCamera().getWidth();
 
-        for (Ball ball : balls)
-        {
-            scene.detachChild(ball);
-            ball.getBody().setActive(false);
-            balls.remove(ball);
-        }
+        VertexBufferObjectManager vboManager = mEngine.getVertexBufferObjectManager();
 
-        platform = new Platform(270,800,mEngine.getVertexBufferObjectManager(),physicsWorld);
-        scene.attachChild(platform);
+        createPlatform(width,height,vboManager);
 
-        Ball startBall = new Ball(270,800,120,mEngine.getVertexBufferObjectManager(),physicsWorld);
-        balls.add(startBall);
-
-        for (Ball ball : balls)
-        {
-            scene.attachChild(ball);
-        }
+        createBalls(width,height,vboManager);
     }
 
     protected synchronized void updateObjects()
@@ -211,23 +203,41 @@ public class Game {
         {
             for (int j=0;j<16;j++)
             {
-                if (blocks[j][i].getBody().getUserData().equals("destroyed"))
-                {
-                    final Block block = blocks[j][i];
-                    mEngine.runOnUpdateThread(new Runnable()
-                    {
-                        @Override
-                        public void run() {
-                            block.getBody().setActive(false);
-                            scene.detachChild(block);
-                        }
-                    });
-                }
+                updateBlock(blocks[j][i]);
             }
         }
 
         for (Ball ball : balls)
         {
+            updateBall(ball);
+        }
+
+       updatePlatform(this.platform);
+
+    }
+
+    protected void updateBlock(Block block)
+    {
+        if (block!=null)
+        {
+            if (block.getBody().getUserData().equals("destroyed"))
+            {
+                final Block b = block;
+                mEngine.runOnUpdateThread(new Runnable()
+                {
+                    @Override
+                    public void run() {
+                        b.getBody().setActive(false);
+                        scene.detachChild(b);
+                    }
+                });
+            }
+        }
+
+    }
+
+    protected void updateBall(Ball ball)
+    {
             if (ball.getBody().getUserData().equals("destroyed"))
             {
                 final PhysicsConnector physicsConnector =
@@ -263,7 +273,11 @@ public class Game {
                 });
 
             }
-        }
+    }
+
+    protected void updatePlatform(Platform platform)
+    {
+        platform.move();
 
         if (platform.getBody().getUserData().equals("launch"))
         {
@@ -273,13 +287,14 @@ public class Game {
             for (Ball ball : attachedBalls)
             {
                 final Ball b = ball;
+                final Platform p = platform;
                 mEngine.runOnUpdateThread(new Runnable()
                 {
                     @Override
-                    public void run() 
+                    public void run()
                     {
-                    
-                        double angle = 0.8 * ((b.getBody().getPosition().x - platform.getBody().getPosition().x) * 32 / (platform.getWidth() / 2) * 90);
+
+                        double angle = 0.8 * ((b.getBody().getPosition().x -p.getBody().getPosition().x) * 32 / (p.getWidth() / 2) * 90);
                         b.getBody().setLinearVelocity(Ball.computeVelocity(180 - angle));
                         attachedBalls.remove(b);
                         b.getBody().setUserData("ball");
@@ -287,9 +302,34 @@ public class Game {
                 });
             }
         }
-
     }
 
+    protected IOnSceneTouchListener createTouchListener(final float width)
+    {
+        return new IOnSceneTouchListener() {
+            @Override
+            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent)
+            {
+                float touchX = pSceneTouchEvent.getX();
+
+                if(touchX>width - 1 - platform.getWidth()/2)
+                {
+                    platform.setTarget(width- platform.getWidth()/2-1);
+                }
+                else if(touchX< platform.getWidth()/2+1) platform.setTarget(platform.getWidth()/2+1);
+                else platform.setTarget(touchX);
+
+                if (pSceneTouchEvent.isActionUp())
+                {
+                    platform.getBody().setUserData("launch");
+                }
+
+                return false;
+
+
+            }
+        };
+    }
 
     protected ContactListener createContactListener()
     {

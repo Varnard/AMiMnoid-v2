@@ -23,10 +23,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.ModeSelectActivity" />
-        <activity android:name=".Activities.ClassicLSActivity"/>
-        <activity android:name=".Activities.MirrorLSActivity"/>
-        <activity android:name=".Activities.TimeraceLSActivity"/>
-        <activity android:name=".Activities.SnakeLSActivity"/>
+        <activity android:name=".Activities.LevelSelectors.ClassicLSActivity"/>
+        <activity android:name=".Activities.LevelSelectors.MirrorLSActivity"/>
+        <activity android:name=".Activities.LevelSelectors.TimeraceLSActivity"/>
+        <activity android:name=".Activities.LevelSelectors.SnakeLSActivity"/>
         <activity android:name=".Activities.GameActivity"/>
     </application>
 

@@ -1,4 +1,4 @@
-package com.makeinfo.andenginetemplate.Activities;
+package com.makeinfo.andenginetemplate.Activities.LevelSelectors;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,9 +8,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.makeinfo.andenginetemplate.Activities.GameActivity;
 import com.makeinfo.andenginetemplate.R;
 
-public class SnakeLSActivity extends Activity {
+public class MirrorLSActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,13 +21,13 @@ public class SnakeLSActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.activity_snake_ls);
+        setContentView(R.layout.activity_mirror_ls);
     }
 
     public void start(View view)
     {
         Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra("mode","snake");
+        intent.putExtra("mode","mirror");
         startActivity(intent);
     }
 }

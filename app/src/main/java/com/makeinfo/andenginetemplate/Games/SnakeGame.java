@@ -1,19 +1,16 @@
-package com.makeinfo.andenginetemplate;
+package com.makeinfo.andenginetemplate.Games;
 
 import org.andengine.engine.Engine;
 import org.andengine.entity.scene.Scene;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
-/**
- * Created by Varn on 2016-06-02.
- */
 public class SnakeGame extends Game {
 
     int timer;
 
-    public SnakeGame(Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
+    public SnakeGame(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
     {
-        super(scene,mEngine,physicsWorld);
+        super(mode,level,scene,mEngine,physicsWorld);
         timer=0;
     }
 
