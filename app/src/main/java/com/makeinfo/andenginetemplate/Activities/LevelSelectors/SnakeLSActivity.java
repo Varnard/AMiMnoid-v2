@@ -28,6 +28,7 @@ public class SnakeLSActivity extends Activity {
     {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("mode","snake");
+        intent.putExtra("level",Integer.parseInt(view.getTag().toString()));
         startActivity(intent);
     }
 }

@@ -26,6 +26,7 @@ public class ClassicLSActivity extends Activity {
     public void start(View view)
     {
         Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("level",Integer.parseInt(view.getTag().toString()));
         startActivity(intent);
     }
 }

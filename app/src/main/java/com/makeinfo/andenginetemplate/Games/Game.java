@@ -319,8 +319,6 @@ public class Game {
                 }
 
                 return false;
-
-
             }
         };
     }
@@ -367,8 +365,9 @@ public class Game {
 
                 if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("block"))
                 {
-                    float diffX = Math.abs(x2.getBody().getPosition().x - x1.getBody().getPosition().x);
-                    if (diffX > 64)
+                    float ptm=32;
+                    float diffX = (Math.abs(x2.getBody().getPosition().x - x1.getBody().getPosition().x)*ptm);
+                    if (diffX > 32)
                     {
                         x2.getBody().setLinearVelocity(-(x2.getBody().getLinearVelocity().x), x2.getBody().getLinearVelocity().y);
                     }

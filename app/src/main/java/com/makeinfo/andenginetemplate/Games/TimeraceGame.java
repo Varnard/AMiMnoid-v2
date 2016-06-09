@@ -28,7 +28,10 @@ public class TimeraceGame extends Game {
             {
                 for (int j = 0; j < 8; j++)
                 {
+                    if (blocks[i][j]!=null)
+                    {
                         blocks[i][j].getBody().setLinearVelocity(0, 0.1f);
+                    }
                 }
             }
 

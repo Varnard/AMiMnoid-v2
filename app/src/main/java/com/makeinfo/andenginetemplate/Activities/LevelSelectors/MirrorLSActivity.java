@@ -28,6 +28,7 @@ public class MirrorLSActivity extends Activity {
     {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("mode","mirror");
+        intent.putExtra("level",Integer.parseInt(view.getTag().toString()));
         startActivity(intent);
     }
 }

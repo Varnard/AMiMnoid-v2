@@ -20,7 +20,6 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
 
-
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.background.Background;
@@ -44,7 +43,7 @@ public class GameActivity extends SimpleBaseGameActivity {
         RatioResolutionPolicy ratioResolutionPolicy = new RatioResolutionPolicy(
                 GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT);
         EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED,
-                ratioResolutionPolicy, camera);
+                                                        ratioResolutionPolicy, camera);
 
 
         return engineOptions;
@@ -58,35 +57,44 @@ public class GameActivity extends SimpleBaseGameActivity {
         Scene scene = new Scene();
         FixedStepPhysicsWorld physicsWorld = new FixedStepPhysicsWorld(30, new Vector2(0, 0), false) {
             @Override
-            public void onUpdate(float pSecondsElapsed) {
+            public void onUpdate(float pSecondsElapsed)
+            {
                 super.onUpdate(pSecondsElapsed);
                 game.update();
             }
         };
 
-        scene.setBackground(new Background(0.6f,0.6f,0.6f));
+        scene.setBackground(new Background(0.6f, 0.6f, 0.6f));
 
         mEngine.registerUpdateHandler(physicsWorld);
 
         Bundle parameters = getIntent().getExtras();
-        if(parameters != null && parameters.containsKey("mode"))
+
+        int level = 1;
+
+        if (parameters != null && parameters.containsKey("level"))
+        {
+            level = parameters.getInt("level");
+        }
+
+        if (parameters != null && parameters.containsKey("mode"))
         {
             if (parameters.getString("mode").equals("snake"))
             {
-                game = new SnakeGame("snake",1,scene, mEngine, physicsWorld);
+                game = new SnakeGame("snake", level, scene, mEngine, physicsWorld);
             }
 
             if (parameters.getString("mode").equals("timerace"))
             {
-                game = new TimeraceGame("timerace",1,scene, mEngine, physicsWorld);
+                game = new TimeraceGame("timerace", level, scene, mEngine, physicsWorld);
             }
 
             if (parameters.getString("mode").equals("mirror"))
             {
-                game = new MirrorGame("mirror",1,scene, mEngine, physicsWorld);
+                game = new MirrorGame("mirror", level, scene, mEngine, physicsWorld);
             }
         }
-        else game = new Game("classic",1,scene, mEngine, physicsWorld);
+        else game = new Game("classic", level, scene, mEngine, physicsWorld);
 
         return scene;
     }
@@ -95,17 +103,17 @@ public class GameActivity extends SimpleBaseGameActivity {
     protected void onCreateResources()
     {
         BitmapTextureAtlas atlas = new BitmapTextureAtlas(getTextureManager(), 128, 128, TextureOptions.DEFAULT);
-        HashMap<String,TextureRegion> textures = TextureMap.getInstance();
-        TextureRegion ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/ball.png",0,0);
+        HashMap<String, TextureRegion> textures = TextureMap.getInstance();
+        TextureRegion ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/ball.png", 0, 0);
         TextureRegion platformTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/platform.png", 0, 24);
-        TextureRegion block1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block1.png",0,48);
-        TextureRegion block2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block2.png",0,72);
-        TextureRegion block3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block3.png",0,96);
-        textures.put("ball",ballTextureRegion);
-        textures.put("platform",platformTextureRegion);
-        textures.put("block1",block1TextureRegion);
-        textures.put("block2",block2TextureRegion);
-        textures.put("block3",block3TextureRegion);
+        TextureRegion block1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block1.png", 0, 48);
+        TextureRegion block2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block2.png", 0, 72);
+        TextureRegion block3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block3.png", 0, 96);
+        textures.put("ball", ballTextureRegion);
+        textures.put("platform", platformTextureRegion);
+        textures.put("block1", block1TextureRegion);
+        textures.put("block2", block2TextureRegion);
+        textures.put("block3", block3TextureRegion);
         atlas.load();
     }
 

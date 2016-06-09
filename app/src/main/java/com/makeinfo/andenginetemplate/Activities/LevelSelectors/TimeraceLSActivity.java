@@ -29,6 +29,7 @@ public class TimeraceLSActivity extends Activity {
     {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("mode","timerace");
+        intent.putExtra("level",Integer.parseInt(view.getTag().toString()));
         startActivity(intent);
     }
 }

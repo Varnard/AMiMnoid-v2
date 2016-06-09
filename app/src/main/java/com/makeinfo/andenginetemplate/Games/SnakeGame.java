@@ -10,8 +10,8 @@ public class SnakeGame extends Game {
 
     public SnakeGame(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
     {
-        super(mode,level,scene,mEngine,physicsWorld);
-        timer=0;
+        super(mode, level, scene, mEngine, physicsWorld);
+        timer = 0;
     }
 
     @Override
@@ -21,17 +21,21 @@ public class SnakeGame extends Game {
         moveBlocks();
     }
 
+
     private void moveBlocks()
     {
-        if (timer<150||timer>450)
+        if (timer < 150 || timer > 450)
         {
             for (int i = 0; i < 16; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    if (i%2==0)
-                    blocks[i][j].getBody().setLinearVelocity(2, 0);
-                    else blocks[i][j].getBody().setLinearVelocity(-2, 0);
+                    if (blocks[i][j] != null)
+                    {
+                        if (i % 2 == 0)
+                            blocks[i][j].getBody().setLinearVelocity(2, 0);
+                        else blocks[i][j].getBody().setLinearVelocity(-2, 0);
+                    }
                 }
             }
         }
@@ -41,13 +45,16 @@ public class SnakeGame extends Game {
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    if (i%2==0)
-                        blocks[i][j].getBody().setLinearVelocity(-2, 0);
-                    else blocks[i][j].getBody().setLinearVelocity(2, 0);
+                    if (blocks[i][j] != null)
+                    {
+                        if (i % 2 == 0)
+                            blocks[i][j].getBody().setLinearVelocity(-2, 0);
+                        else blocks[i][j].getBody().setLinearVelocity(2, 0);
+                    }
                 }
             }
         }
-        if (timer==600)timer=0;
+        if (timer == 600) timer = 0;
         timer++;
     }
 }
