@@ -51,32 +51,32 @@ public class Game {
     public static final short MASKBITS_BLOCK = CATEGORYBIT_BALL;
     public static final short MASKBITS_BALL = CATEGORYBIT_WALL + CATEGORYBIT_PlATFORM + CATEGORYBIT_BLOCK;
 
-    public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_WALL, MASKBITS_WALL, (short)0);
-    public static final FixtureDef PLATFORM_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_PlATFORM, MASKBITS_PlATFORM, (short)0);
-    public static final FixtureDef BLOCK_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BLOCK, MASKBITS_BLOCK, (short)0);
-    public static final FixtureDef BALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BALL, MASKBITS_BALL, (short)0);
+    public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_WALL, MASKBITS_WALL, (short) 0);
+    public static final FixtureDef PLATFORM_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_PlATFORM, MASKBITS_PlATFORM, (short) 0);
+    public static final FixtureDef BLOCK_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BLOCK, MASKBITS_BLOCK, (short) 0);
+    public static final FixtureDef BALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BALL, MASKBITS_BALL, (short) 0);
 
 
     public Game(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
     {
         physicsWorld.setContactListener(createContactListener());
 
-        this.scene=scene;
-        this.mEngine=mEngine;
-        this.physicsWorld=physicsWorld;
+        this.scene = scene;
+        this.mEngine = mEngine;
+        this.physicsWorld = physicsWorld;
 
         final float height = mEngine.getCamera().getHeight();
         final float width = mEngine.getCamera().getWidth();
 
         VertexBufferObjectManager vboManager = mEngine.getVertexBufferObjectManager();
 
-        createWalls(width,height);
+        createWalls(width, height);
 
-        createPlatform(width,height,vboManager);
+        createPlatform(width, height, vboManager);
 
-        createBalls(width,height,vboManager);
+        createBalls(width, height, vboManager);
 
-        createBlocks(mode,level,vboManager);
+        createBlocks(mode, level, vboManager);
 
         scene.setOnSceneTouchListener(createTouchListener(width));
 
@@ -84,15 +84,15 @@ public class Game {
 
     protected void createPlatform(float width, float height, VertexBufferObjectManager vboManager)
     {
-        platform = new Platform(width/2,height-160,vboManager,physicsWorld);
+        platform = new Platform(width / 2, height - 160, vboManager, physicsWorld);
         scene.attachChild(platform);
     }
 
     protected void createBalls(float width, float height, VertexBufferObjectManager vboManager)
     {
-        balls=new ArrayList<>();
+        balls = new ArrayList<>();
 
-        Ball startBall = new Ball(width/2,height-160,120,vboManager,physicsWorld);
+        Ball startBall = new Ball(width / 2, height - 160, 120, vboManager, physicsWorld);
         balls.add(startBall);
         platform.attachBall(startBall);
 
@@ -116,40 +116,23 @@ public class Game {
 
     protected void createBlocks(String mode, int level, VertexBufferObjectManager vboManager)
     {
-        int[][] z= MapLoader.getLevel(mode,level);
+        int[][] z = MapLoader.getLevel(mode, level);
 
-        float offset=2;
-        if (mode.equals("mirror"))offset=202;
+        float offset = 2;
+        if (mode.equals("mirror")) offset = 202;
 
         blocks = new Block[16][8];
-        float spacingX = (mEngine.getCamera().getWidth()-64*8)/9;
+        float spacingX = (mEngine.getCamera().getWidth() - 64 * 8) / 9;
         float spacingY = 2;
-        for (int i=0;i<8;i++)
+        for (int i = 0; i < 8; i++)
         {
-            for (int j=0;j<16;j++)
+            for (int j = 0; j < 16; j++)
             {
-                switch (z[j][i])
+                if (z[j][i] != 0)
                 {
-                    case 1:
-                    {
-                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+offset, "block1", vboManager, physicsWorld);
-                        break;
-                    }
-
-                    case 2:
-                    {
-                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+offset, "block2", vboManager, physicsWorld);
-                        break;
-                    }
-
-                    case 3:
-                    {
-                        blocks[j][i] = new Block(i * (64+spacingX) , j * (24+spacingY)+offset, "block3", vboManager, physicsWorld);
-                        break;
-                    }
-
+                    blocks[j][i] = new Block(i * (64 + spacingX), j * (24 + spacingY) + offset, "block" + z[j][i], vboManager, physicsWorld);
                 }
-                if (blocks[j][i]!=null)scene.attachChild(blocks[j][i]);
+                if (blocks[j][i] != null) scene.attachChild(blocks[j][i]);
             }
 
         }
@@ -157,16 +140,20 @@ public class Game {
 
     protected void destroyPlatform()
     {
-        platform.getBody().setActive(false);
+        final Body body = platform.getBody();
         scene.detachChild(platform);
+        physicsWorld.unregisterPhysicsConnector(physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(platform));
+        physicsWorld.destroyBody(body);
     }
 
     protected void destroyBalls()
     {
         for (Ball ball : balls)
         {
+            final Body body = ball.getBody();
             scene.detachChild(ball);
-            ball.getBody().setActive(false);
+            physicsWorld.unregisterPhysicsConnector(physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(ball));
+            physicsWorld.destroyBody(body);
             balls.remove(ball);
         }
     }
@@ -174,7 +161,7 @@ public class Game {
     public void update()
     {
         updateObjects();
-        if (noBallsLeft())softReset();
+        if (noBallsLeft()) softReset();
     }
 
 
@@ -182,6 +169,7 @@ public class Game {
     {
         return balls.isEmpty();
     }
+
     public synchronized void softReset()
     {
         destroyPlatform();
@@ -192,87 +180,93 @@ public class Game {
 
         VertexBufferObjectManager vboManager = mEngine.getVertexBufferObjectManager();
 
-        createPlatform(width,height,vboManager);
+        createPlatform(width, height, vboManager);
 
-        createBalls(width,height,vboManager);
+        createBalls(width, height, vboManager);
     }
 
     protected synchronized void updateObjects()
     {
-        for (int i=0;i<8;i++)
-        {
-            for (int j=0;j<16;j++)
-            {
-                updateBlock(blocks[j][i]);
-            }
-        }
+        updateBlocks();
 
         for (Ball ball : balls)
         {
             updateBall(ball);
         }
 
-       updatePlatform(this.platform);
+        updatePlatform(this.platform);
 
     }
 
-    protected void updateBlock(Block block)
+    protected void updateBlocks()
     {
-        if (block!=null)
+        for (int i = 0; i < 8; i++)
         {
-            if (block.getBody().getUserData().equals("destroyed"))
+            for (int j = 0; j < 16; j++)
             {
-                final Block b = block;
-                mEngine.runOnUpdateThread(new Runnable()
+                final Block block = blocks[j][i];
+
+
+                if (block != null)
                 {
-                    @Override
-                    public void run() {
-                        b.getBody().setActive(false);
-                        scene.detachChild(b);
+                    if (block.getBody().getUserData().equals("destroyed"))
+                    {
+                        final Block b = block;
+                        final int fj = j;
+                        final int fi = i;
+                        mEngine.runOnUpdateThread(new Runnable() {
+                            @Override
+                            public void run()
+                            {
+                                final Body body = b.getBody();
+                                scene.detachChild(b);
+                                physicsWorld.unregisterPhysicsConnector(physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(b));
+                                physicsWorld.destroyBody(body);
+                                blocks[fj][fi] = null;
+                            }
+                        });
                     }
-                });
+                }
+
             }
         }
-
     }
 
     protected void updateBall(Ball ball)
     {
-            if (ball.getBody().getUserData().equals("destroyed"))
-            {
-                final PhysicsConnector physicsConnector =
-                        physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(ball);
-                final Ball b=ball;
+        if (ball.getBody().getUserData().equals("destroyed"))
+        {
+            final PhysicsConnector physicsConnector =
+                    physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(ball);
+            final Ball b = ball;
 
-                mEngine.runOnUpdateThread(new Runnable()
+            mEngine.runOnUpdateThread(new Runnable() {
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void run()
+                    if (physicsConnector != null)
                     {
-                        if (physicsConnector != null)
-                        {
-                            balls.remove(b);
-                            physicsWorld.unregisterPhysicsConnector(physicsConnector);
-                            b.getBody().setActive(false);
-                            physicsWorld.destroyBody(b.getBody());
-                            scene.detachChild(b);
-                        }
+                        balls.remove(b);
+                        scene.detachChild(b);
+                        physicsWorld.unregisterPhysicsConnector(physicsConnector);
+                        physicsWorld.destroyBody(b.getBody());
                     }
-                });
-            }
+                }
+            });
+        }
 
-            if (ball.getBody().getUserData().equals("attach"))
-            {
-                final Ball b = ball;
-                mEngine.runOnUpdateThread(new Runnable()
+        if (ball.getBody().getUserData().equals("attach"))
+        {
+            final Ball b = ball;
+            mEngine.runOnUpdateThread(new Runnable() {
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void run() {
-                        platform.attachBall(b);
-                    }
-                });
+                    platform.attachBall(b);
+                }
+            });
 
-            }
+        }
     }
 
     protected void updatePlatform(Platform platform)
@@ -288,13 +282,12 @@ public class Game {
             {
                 final Ball b = ball;
                 final Platform p = platform;
-                mEngine.runOnUpdateThread(new Runnable()
-                {
+                mEngine.runOnUpdateThread(new Runnable() {
                     @Override
                     public void run()
                     {
 
-                        double angle = 0.8 * ((b.getBody().getPosition().x -p.getBody().getPosition().x) * 32 / (p.getWidth() / 2) * 90);
+                        double angle = 0.8 * ((b.getBody().getPosition().x - p.getBody().getPosition().x) * 32 / (p.getWidth() / 2) * 90);
                         b.getBody().setLinearVelocity(Ball.computeVelocity(180 - angle));
                         attachedBalls.remove(b);
                         b.getBody().setUserData("ball");
@@ -312,11 +305,12 @@ public class Game {
             {
                 float touchX = pSceneTouchEvent.getX();
 
-                if(touchX>width - 1 - platform.getWidth()/2)
+                if (touchX > width - 1 - platform.getWidth() / 2)
                 {
-                    platform.setTarget(width- platform.getWidth()/2-1);
+                    platform.setTarget(width - platform.getWidth() / 2 - 1);
                 }
-                else if(touchX< platform.getWidth()/2+1) platform.setTarget(platform.getWidth()/2+1);
+                else if (touchX < platform.getWidth() / 2 + 1)
+                    platform.setTarget(platform.getWidth() / 2 + 1);
                 else platform.setTarget(touchX);
 
                 if (pSceneTouchEvent.isActionUp())
@@ -333,32 +327,31 @@ public class Game {
 
     protected ContactListener createContactListener()
     {
-        ContactListener contactListener = new ContactListener()
-        {
+        ContactListener contactListener = new ContactListener() {
             @Override
             public synchronized void beginContact(Contact contact)
             {
                 final Fixture x1 = contact.getFixtureA();
                 final Fixture x2 = contact.getFixtureB();
 
-                if (x2.getBody().getUserData().equals("ball")&&x1.getBody().getUserData().equals("sideWall"))
+                if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("sideWall"))
                 {
-                    x2.getBody().setLinearVelocity(-(x2.getBody().getLinearVelocity().x),x2.getBody().getLinearVelocity().y);
+                    x2.getBody().setLinearVelocity(-(x2.getBody().getLinearVelocity().x), x2.getBody().getLinearVelocity().y);
                 }
 
 
-                if (x2.getBody().getUserData().equals("ball")&&x1.getBody().getUserData().equals("ceiling"))
+                if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("ceiling"))
                 {
-                    x2.getBody().setLinearVelocity(x2.getBody().getLinearVelocity().x,-(x2.getBody().getLinearVelocity().y));
+                    x2.getBody().setLinearVelocity(x2.getBody().getLinearVelocity().x, -(x2.getBody().getLinearVelocity().y));
                 }
 
-                if (x2.getBody().getUserData().equals("ball")&&x1.getBody().getUserData().equals("ground"))
+                if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("ground"))
                 {
                     x2.getBody().setActive(false);
                     x2.getBody().setUserData("destroyed");
                 }
 
-                if (x2.getBody().getUserData().equals("ball")&&x1.getBody().getUserData().equals("platform"))
+                if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("platform"))
                 {
                     if (platform.isMagnetActive())
                     {
@@ -372,12 +365,17 @@ public class Game {
 
                 }
 
-                if (x2.getBody().getUserData().equals("ball")&&x1.getBody().getUserData().equals("block"))
+                if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("block"))
                 {
-                    x2.getBody().setLinearVelocity(x2.getBody().getLinearVelocity().x,-(x2.getBody().getLinearVelocity().y));
+                    float diffX = Math.abs(x2.getBody().getPosition().x - x1.getBody().getPosition().x);
+                    if (diffX > 64)
+                    {
+                        x2.getBody().setLinearVelocity(-(x2.getBody().getLinearVelocity().x), x2.getBody().getLinearVelocity().y);
+                    }
+                    else
+                    x2.getBody().setLinearVelocity(x2.getBody().getLinearVelocity().x, -(x2.getBody().getLinearVelocity().y));
                     x1.getBody().setUserData("destroyed");
                 }
-
 
 
             }

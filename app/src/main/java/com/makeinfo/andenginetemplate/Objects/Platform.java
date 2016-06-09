@@ -27,70 +27,76 @@ public class Platform extends Sprite {
 
     public Platform(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld physicsWorld)
     {
-        super(pX-64,pY, TextureMap.getInstance().get("platform"),pVertexBufferObjectManager);
-        ptm=32;
-        maxSpeed=10;
-        magnet=true;
-        target=pX;
-        body = PhysicsFactory.createBoxBody(physicsWorld,this, BodyDef.BodyType.KinematicBody, Game.PLATFORM_FIXTURE_DEF);
-        body.getPosition().x=pX;
+        super(pX - 64, pY, TextureMap.getInstance().get("platform"), pVertexBufferObjectManager);
+        ptm = 32;
+        maxSpeed = 10;
+        magnet = true;
+        target = pX;
+        body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyDef.BodyType.KinematicBody, Game.PLATFORM_FIXTURE_DEF);
+        body.getPosition().x = pX;
         body.setUserData("platform");
-        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this,body,true,false));
+        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
         attachedBalls = new ArrayList<>();
 
     }
 
-    public void setMagnet(boolean magnet) {
+    public void setMagnet(boolean magnet)
+    {
         this.magnet = magnet;
     }
 
-    public void setMaxSpeed(float maxSpeed) {
+    public void setMaxSpeed(float maxSpeed)
+    {
         this.maxSpeed = maxSpeed;
     }
 
-    public void setTarget(float target) {
+    public void setTarget(float target)
+    {
         this.target = target;
     }
 
     public synchronized void attachBall(Ball ball)
     {
         ball.getBody().setUserData("attached");
-        ball.getBody().setLinearVelocity(0,0);
+        ball.getBody().setLinearVelocity(0, 0);
         attachedBalls.add((ball));
     }
 
-    public Body getBody() {
+    public Body getBody()
+    {
         return body;
     }
 
-    public boolean isMagnetActive() {
+    public boolean isMagnetActive()
+    {
         return magnet;
     }
 
-    public ArrayList<Ball> getAttachedBalls() {
+    public ArrayList<Ball> getAttachedBalls()
+    {
         return attachedBalls;
     }
 
     public synchronized void move()
     {
-        float difference = body.getPosition().x*ptm-target;
-        if (difference>0)
+        float difference = body.getPosition().x * ptm - target;
+        if (difference > 0)
         {
-            if (difference>maxSpeed)
+            if (difference > maxSpeed)
             {
-                body.setLinearVelocity(-maxSpeed,0);
+                body.setLinearVelocity(-maxSpeed, 0);
             }
-            else  body.setLinearVelocity(-difference,0);
+            else body.setLinearVelocity(-difference, 0);
         }
-        else if (difference<0)
+        else if (difference < 0)
         {
-            if (Math.abs(difference)>maxSpeed)
+            if (Math.abs(difference) > maxSpeed)
             {
-                body.setLinearVelocity(maxSpeed,0);
+                body.setLinearVelocity(maxSpeed, 0);
             }
-            else  body.setLinearVelocity(-difference,0);
+            else body.setLinearVelocity(-difference, 0);
         }
-        else body.setLinearVelocity(0,0);
+        else body.setLinearVelocity(0, 0);
 
         for (Ball ball : attachedBalls)
         {

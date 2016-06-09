@@ -16,21 +16,21 @@ public class MirrorGame extends Game {
 
     public MirrorGame(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
     {
-        super(mode,level,scene,mEngine,physicsWorld);
+        super(mode, level, scene, mEngine, physicsWorld);
     }
 
     @Override
     protected void createWalls(float width, float height)
     {
-        super.createWalls(width,height);
+        super.createWalls(width, height);
         ceiling.setUserData("ground");
     }
 
     @Override
     protected void createPlatform(float width, float height, VertexBufferObjectManager vboManager)
     {
-        super.createPlatform(width,height,vboManager);
-        mirrorPlatform = new Platform(width/2,100,vboManager,physicsWorld);
+        super.createPlatform(width, height, vboManager);
+        mirrorPlatform = new Platform(width / 2, 100, vboManager, physicsWorld);
         scene.attachChild(mirrorPlatform);
     }
 
@@ -60,15 +60,15 @@ public class MirrorGame extends Game {
             {
                 float touchX = pSceneTouchEvent.getX();
 
-                if(touchX>width - 1 - platform.getWidth()/2)
+                if (touchX > width - 1 - platform.getWidth() / 2)
                 {
-                    platform.setTarget(width- platform.getWidth()/2-1);
-                    mirrorPlatform.setTarget(width- platform.getWidth()/2-1);
+                    platform.setTarget(width - platform.getWidth() / 2 - 1);
+                    mirrorPlatform.setTarget(width - platform.getWidth() / 2 - 1);
                 }
-                else if(touchX< platform.getWidth()/2+1)
+                else if (touchX < platform.getWidth() / 2 + 1)
                 {
-                    platform.setTarget(platform.getWidth()/2+1);
-                    mirrorPlatform.setTarget(platform.getWidth()/2+1);
+                    platform.setTarget(platform.getWidth() / 2 + 1);
+                    mirrorPlatform.setTarget(platform.getWidth() / 2 + 1);
                 }
                 else
                 {

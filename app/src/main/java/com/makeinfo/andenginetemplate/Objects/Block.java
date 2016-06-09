@@ -14,19 +14,20 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 public class Block extends Sprite {
 
-        private Body body;
+    private Body body;
 
     public Block(float pX, float pY, String type,
                  VertexBufferObjectManager pVertexByfferObjectManager, PhysicsWorld physicsWorld)
     {
-        super(pX,pY, TextureMap.getInstance().get(type),pVertexByfferObjectManager);
-        body = PhysicsFactory.createBoxBody(physicsWorld,this, BodyDef.BodyType.KinematicBody, Game.BLOCK_FIXTURE_DEF);
-        body.getPosition().x=pX;
+        super(pX, pY, TextureMap.getInstance().get(type), pVertexByfferObjectManager);
+        body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyDef.BodyType.KinematicBody, Game.BLOCK_FIXTURE_DEF);
+        body.getPosition().x = pX;
         body.setUserData("block");
-        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this,body,true,false));
+        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
     }
 
-    public Body getBody() {
+    public Body getBody()
+    {
         return body;
     }
 }

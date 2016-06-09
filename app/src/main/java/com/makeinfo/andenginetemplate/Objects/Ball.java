@@ -18,46 +18,47 @@ public class Ball extends Sprite {
     private static float maxSpeed;
     private Body body;
 
-    public Ball(float pX, float pY, double angle,VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld physicsWorld)
+    public Ball(float pX, float pY, double angle, VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld physicsWorld)
     {
-        super(pX,pY, TextureMap.getInstance().get("ball"),pVertexBufferObjectManager);
-        maxSpeed=8;
-        body = PhysicsFactory.createCircleBody(physicsWorld,this, BodyDef.BodyType.DynamicBody, Game.BALL_FIXTURE_DEF);
+        super(pX, pY, TextureMap.getInstance().get("ball"), pVertexBufferObjectManager);
+        maxSpeed = 8;
+        body = PhysicsFactory.createCircleBody(physicsWorld, this, BodyDef.BodyType.DynamicBody, Game.BALL_FIXTURE_DEF);
         body.setUserData("ball");
-        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this,body,true,false));
+        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
         body.setLinearVelocity(Ball.computeVelocity(angle));
 
     }
 
-    public Body getBody() {
+    public Body getBody()
+    {
         return body;
     }
 
     public static Vector2 computeVelocity(double angle)
     {
-        float velX=maxSpeed*(float)Math.sin(Math.toRadians(angle));
-        float velY=maxSpeed*(float)Math.cos(Math.toRadians(angle));
-        return new Vector2(velX,velY);
+        float velX = maxSpeed * (float) Math.sin(Math.toRadians(angle));
+        float velY = maxSpeed * (float) Math.cos(Math.toRadians(angle));
+        return new Vector2(velX, velY);
     }
 
     public void setVelocityX(float velX)
     {
-        body.setLinearVelocity(velX,body.getLinearVelocity().y);
+        body.setLinearVelocity(velX, body.getLinearVelocity().y);
     }
 
     public void setVelocityY(float velY)
     {
-        body.setLinearVelocity(body.getLinearVelocity().x,velY);
+        body.setLinearVelocity(body.getLinearVelocity().x, velY);
     }
 
     public void reverseVelocityX()
     {
-        body.setLinearVelocity(body.getLinearVelocity().x*-1,body.getLinearVelocity().y);
+        body.setLinearVelocity(body.getLinearVelocity().x * -1, body.getLinearVelocity().y);
     }
 
     public void reverseVelocityY()
     {
-        body.setLinearVelocity(body.getLinearVelocity().x,body.getLinearVelocity().y*-1);
+        body.setLinearVelocity(body.getLinearVelocity().x, body.getLinearVelocity().y * -1);
     }
 
- }
+}
