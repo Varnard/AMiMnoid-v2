@@ -13,6 +13,7 @@ import com.makeinfo.andenginetemplate.Games.TimeraceGame;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.entity.scene.Scene;
 import org.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -31,6 +32,8 @@ import java.util.HashMap;
 public class GameActivity extends SimpleBaseGameActivity {
 
     private Game game;
+    private Scene scene;
+    private FixedStepPhysicsWorld physicsWorld;
     private static final int CAMERA_WIDTH = 540;
     private static final int CAMERA_HEIGHT = 960;
 
@@ -54,8 +57,8 @@ public class GameActivity extends SimpleBaseGameActivity {
     {
         MapLoader.setContext(this);
 
-        Scene scene = new Scene();
-        FixedStepPhysicsWorld physicsWorld = new FixedStepPhysicsWorld(30, new Vector2(0, 0), false) {
+        scene = new Scene();
+        physicsWorld = new FixedStepPhysicsWorld(30, new Vector2(0, 0), false) {
             @Override
             public void onUpdate(float pSecondsElapsed)
             {
@@ -68,6 +71,33 @@ public class GameActivity extends SimpleBaseGameActivity {
 
         mEngine.registerUpdateHandler(physicsWorld);
 
+        startGame();
+
+        return scene;
+    }
+
+    @Override
+    protected void onCreateResources()
+    {
+        BitmapTextureAtlas atlas = new BitmapTextureAtlas(getTextureManager(), 128, 128, TextureOptions.DEFAULT);
+        HashMap<String, TextureRegion> textures = TextureMap.getInstance();
+        TextureRegion ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/ball.png", 0, 0);
+        TextureRegion platformTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/platform.png", 0, 24);
+        TextureRegion block1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block1.png", 0, 48);
+        TextureRegion block2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block2.png", 0, 72);
+        TextureRegion block3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block3.png", 0, 96);
+        TextureRegion smallballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/ball.png", 0, 120);
+        textures.put("ball", ballTextureRegion);
+        textures.put("smallball", smallballTextureRegion);
+        textures.put("platform", platformTextureRegion);
+        textures.put("block1", block1TextureRegion);
+        textures.put("block2", block2TextureRegion);
+        textures.put("block3", block3TextureRegion);
+        atlas.load();
+    }
+
+    protected void startGame()
+    {
         Bundle parameters = getIntent().getExtras();
 
         int level = 1;
@@ -95,27 +125,5 @@ public class GameActivity extends SimpleBaseGameActivity {
             }
         }
         else game = new Game("classic", level, scene, mEngine, physicsWorld);
-
-        return scene;
     }
-
-    @Override
-    protected void onCreateResources()
-    {
-        BitmapTextureAtlas atlas = new BitmapTextureAtlas(getTextureManager(), 128, 128, TextureOptions.DEFAULT);
-        HashMap<String, TextureRegion> textures = TextureMap.getInstance();
-        TextureRegion ballTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/ball.png", 0, 0);
-        TextureRegion platformTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/platform.png", 0, 24);
-        TextureRegion block1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block1.png", 0, 48);
-        TextureRegion block2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block2.png", 0, 72);
-        TextureRegion block3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "textures/block3.png", 0, 96);
-        textures.put("ball", ballTextureRegion);
-        textures.put("platform", platformTextureRegion);
-        textures.put("block1", block1TextureRegion);
-        textures.put("block2", block2TextureRegion);
-        textures.put("block3", block3TextureRegion);
-        atlas.load();
-    }
-
-
 }

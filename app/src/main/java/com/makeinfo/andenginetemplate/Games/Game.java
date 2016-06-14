@@ -15,6 +15,7 @@ import com.makeinfo.andenginetemplate.Objects.Block;
 import com.makeinfo.andenginetemplate.Objects.Platform;
 
 import org.andengine.engine.Engine;
+import org.andengine.engine.camera.hud.HUD;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
@@ -38,6 +39,7 @@ public class Game {
     protected Scene scene;
     protected Engine mEngine;
     protected PhysicsWorld physicsWorld;
+    protected HUD hud;
 
     /* The categories. */
     public static final short CATEGORYBIT_WALL = 1;
@@ -64,6 +66,8 @@ public class Game {
         this.scene = scene;
         this.mEngine = mEngine;
         this.physicsWorld = physicsWorld;
+        this.hud = mEngine.getCamera().getHUD();
+
 
         final float height = mEngine.getCamera().getHeight();
         final float width = mEngine.getCamera().getWidth();
