@@ -194,7 +194,7 @@ public class Game {
             }
             else
             {
-                ((GameActivity)context).gameOver();
+                ((GameActivity)context).gameOver(gameState.getScore());
             }
 
         }

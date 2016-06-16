@@ -11,6 +11,7 @@ import android.os.Looper;
 
 import com.badlogic.gdx.math.Vector2;
 import com.makeinfo.andenginetemplate.FontMap;
+import com.makeinfo.andenginetemplate.Highscores;
 import com.makeinfo.andenginetemplate.MapLoader;
 import com.makeinfo.andenginetemplate.Games.Game;
 import com.makeinfo.andenginetemplate.Games.MirrorGame;
@@ -231,8 +232,10 @@ public class GameActivity extends SimpleBaseGameActivity {
         mEngine.setScene(scene);
     }
     
-    public void gameOver()
+    public void gameOver(int score)
     {
+        Highscores.loadHighscores();
+        Highscores.updateScores(score);
         final GameActivity ga = this;
         final Text text = new Text(200, 300, FontMap.getInstance().get("impact"), "Game Over", mEngine.getVertexBufferObjectManager());
         text.setScale(3);

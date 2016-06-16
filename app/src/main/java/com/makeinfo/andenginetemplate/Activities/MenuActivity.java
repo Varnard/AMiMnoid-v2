@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.makeinfo.andenginetemplate.Highscores;
 import com.makeinfo.andenginetemplate.R;
 
 
@@ -21,6 +22,7 @@ public class MenuActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_menu);
+        Highscores.setContext(this);
     }
 
     public void start(View view)
@@ -42,7 +44,8 @@ public class MenuActivity extends Activity {
 
     public void checkHighscores(View view)
     {
-
+        Intent intent = new Intent(this, HighscoreActivity.class);
+        startActivity(intent);
     }
 
 
