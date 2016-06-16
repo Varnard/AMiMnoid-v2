@@ -11,24 +11,29 @@ import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-
-public class Block extends Sprite {
+public class Booster extends Sprite {
 
     private Body body;
+    private String type;
 
-    public Block(float pX, float pY, String type,
-                 VertexBufferObjectManager pVertexByfferObjectManager, PhysicsWorld physicsWorld)
+    public Booster(float pX, float pY, String type, VertexBufferObjectManager pVertexByfferObjectManager, PhysicsWorld physicsWorld)
     {
         super(pX, pY, TextureMap.getInstance().get(type), pVertexByfferObjectManager);
-        body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyDef.BodyType.KinematicBody, Game.WALL_FIXTURE_DEF);
+        this.type=type;
+        body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyDef.BodyType.DynamicBody, Game.BOOSTER_FIXTURE_DEF);
         body.getPosition().x = pX;
-        body.setUserData("block");
-        if (type.equals("block8"))body.setUserData("inv");
+        body.setUserData("booster");
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
+        body.setLinearVelocity(0,2);
     }
 
     public Body getBody()
     {
         return body;
+    }
+
+    public String getType()
+    {
+        return type;
     }
 }

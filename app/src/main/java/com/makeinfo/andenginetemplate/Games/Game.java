@@ -1,6 +1,13 @@
 package com.makeinfo.andenginetemplate.Games;
 
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -9,9 +16,13 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.makeinfo.andenginetemplate.Activities.GameActivity;
+import com.makeinfo.andenginetemplate.Activities.MenuActivity;
+import com.makeinfo.andenginetemplate.GameState;
 import com.makeinfo.andenginetemplate.MapLoader;
 import com.makeinfo.andenginetemplate.Objects.Ball;
 import com.makeinfo.andenginetemplate.Objects.Block;
+import com.makeinfo.andenginetemplate.Objects.Booster;
 import com.makeinfo.andenginetemplate.Objects.Platform;
 
 import org.andengine.engine.Engine;
@@ -25,48 +36,54 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Game {
 
+    Context context;
+    protected Scene scene;
+    protected Engine mEngine;
+    protected PhysicsWorld physicsWorld;
+    protected GameState gameState;
+
     protected Platform platform;
     protected ArrayList<Ball> balls;
+    protected ArrayList<Booster> boosters;
     protected Block[][] blocks;
     protected Body leftWall;
     protected Body rightWall;
     protected Body ceiling;
     protected Body ground;
 
-    protected Scene scene;
-    protected Engine mEngine;
-    protected PhysicsWorld physicsWorld;
-    protected HUD hud;
-
     /* The categories. */
     public static final short CATEGORYBIT_WALL = 1;
     public static final short CATEGORYBIT_PlATFORM = 2;
-    public static final short CATEGORYBIT_BLOCK = 4;
+    public static final short CATEGORYBIT_BOOSTER = 4;
     public static final short CATEGORYBIT_BALL = 8;
 
     /* And what should collide with what. */
     public static final short MASKBITS_WALL = CATEGORYBIT_BALL;
-    public static final short MASKBITS_PlATFORM = CATEGORYBIT_BALL;
-    public static final short MASKBITS_BLOCK = CATEGORYBIT_BALL;
-    public static final short MASKBITS_BALL = CATEGORYBIT_WALL + CATEGORYBIT_PlATFORM + CATEGORYBIT_BLOCK;
+    public static final short MASKBITS_PlATFORM = CATEGORYBIT_BALL + CATEGORYBIT_BOOSTER;
+    public static final short MASKBITS_BALL = CATEGORYBIT_WALL + CATEGORYBIT_PlATFORM;
+    public static final short MASKBITS_BOOSTER = CATEGORYBIT_PlATFORM;
 
     public static final FixtureDef WALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_WALL, MASKBITS_WALL, (short) 0);
     public static final FixtureDef PLATFORM_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_PlATFORM, MASKBITS_PlATFORM, (short) 0);
-    public static final FixtureDef BLOCK_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BLOCK, MASKBITS_BLOCK, (short) 0);
     public static final FixtureDef BALL_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BALL, MASKBITS_BALL, (short) 0);
+    public static final FixtureDef BOOSTER_FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 1, 0, false, CATEGORYBIT_BOOSTER, MASKBITS_BOOSTER, (short) 0);
 
 
-    public Game(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
+    public Game(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld, Context context)
     {
         physicsWorld.setContactListener(createContactListener());
 
         this.scene = scene;
         this.mEngine = mEngine;
         this.physicsWorld = physicsWorld;
-        this.hud = mEngine.getCamera().getHUD();
+        this.gameState = new GameState(mEngine.getCamera().getHUD(), mEngine);
+        this.boosters = new ArrayList<>();
+
+        this.context = context;
 
 
         final float height = mEngine.getCamera().getHeight();
@@ -112,7 +129,7 @@ public class Game {
         leftWall.setUserData("sideWall");
         rightWall = PhysicsFactory.createBoxBody(physicsWorld, width, height / 2, 1, height, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
         rightWall.setUserData("sideWall");
-        ceiling = PhysicsFactory.createBoxBody(physicsWorld, width / 2, 0, width, 1, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
+        ceiling = PhysicsFactory.createBoxBody(physicsWorld, width / 2, 40, width, 1, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
         ceiling.setUserData("ceiling");
         ground = PhysicsFactory.createBoxBody(physicsWorld, width / 2, height, width, 1, BodyDef.BodyType.StaticBody, WALL_FIXTURE_DEF);
         ground.setUserData("ground");
@@ -122,7 +139,7 @@ public class Game {
     {
         int[][] z = MapLoader.getLevel(mode, level);
 
-        float offset = 2;
+        float offset = 42;
         if (mode.equals("mirror")) offset = 202;
 
         blocks = new Block[16][8];
@@ -165,7 +182,22 @@ public class Game {
     public void update()
     {
         updateObjects();
-        if (noBallsLeft()) softReset();
+        if (noBlocksLeft())
+        {
+            ((GameActivity)context).victory();
+        }
+        if (noBallsLeft())
+        {
+            if (gameState.getLives() > 0)
+            {
+                softReset();
+            }
+            else
+            {
+                ((GameActivity)context).gameOver();
+            }
+
+        }
     }
 
 
@@ -174,8 +206,28 @@ public class Game {
         return balls.isEmpty();
     }
 
+    public boolean noBlocksLeft()
+    {
+        boolean cleared = true;
+
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 16; j++)
+            {
+                if (blocks[j][i] != null)
+                {
+                    if (!(blocks[j][i].getBody().getUserData().equals("inv")))cleared = false;
+                }
+            }
+        }
+        return cleared;
+    }
+
+
+
     public synchronized void softReset()
     {
+        if (gameState.getLives() > 0) gameState.removeLife();
         destroyPlatform();
         destroyBalls();
 
@@ -200,6 +252,11 @@ public class Game {
 
         updatePlatform(this.platform);
 
+        for (Booster booster : boosters)
+        {
+            updateBooster(booster);
+        }
+
     }
 
     protected void updateBlocks()
@@ -215,9 +272,11 @@ public class Game {
                 {
                     if (block.getBody().getUserData().equals("destroyed"))
                     {
+                        gameState.addScore(1000);
                         final Block b = block;
                         final int fj = j;
                         final int fi = i;
+
                         mEngine.runOnUpdateThread(new Runnable() {
                             @Override
                             public void run()
@@ -229,6 +288,8 @@ public class Game {
                                 blocks[fj][fi] = null;
                             }
                         });
+
+                        makeBooster(b.getX(), b.getY());
                     }
                 }
 
@@ -269,7 +330,17 @@ public class Game {
                     platform.attachBall(b);
                 }
             });
+        }
 
+        float vY = ball.getBody().getLinearVelocity().y;
+        float vX = ball.getBody().getLinearVelocity().x;
+        if (vY > 0)
+        {
+            if (vY < 1) ball.getBody().setLinearVelocity(vX, 1);
+        }
+        else
+        {
+            if (vY > -1) ball.getBody().setLinearVelocity(vX, -1);
         }
     }
 
@@ -291,12 +362,121 @@ public class Game {
                     public void run()
                     {
 
-                        double angle = 0.8 * ((b.getBody().getPosition().x - p.getBody().getPosition().x) * 32 / (p.getWidth() / 2) * 90);
+                        double angle = 0.6 * ((b.getBody().getPosition().x - p.getBody().getPosition().x) * 32 / (p.getWidth() / 2) * 90);
                         b.getBody().setLinearVelocity(Ball.computeVelocity(180 - angle));
                         attachedBalls.remove(b);
                         b.getBody().setUserData("ball");
                     }
                 });
+            }
+        }
+    }
+
+    protected void updateBooster(Booster booster)
+    {
+        if (booster.getBody().getUserData().equals("destroyed"))
+        {
+            final PhysicsConnector physicsConnector =
+                    physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(booster);
+            final Booster b = booster;
+
+            mEngine.runOnUpdateThread(new Runnable() {
+                @Override
+                public void run()
+                {
+                    if (physicsConnector != null)
+                    {
+                        boosters.remove(b);
+                        scene.detachChild(b);
+                        physicsWorld.unregisterPhysicsConnector(physicsConnector);
+                        physicsWorld.destroyBody(b.getBody());
+                    }
+                }
+            });
+        }
+
+        if (booster.getBody().getUserData().equals("activate"))
+        {
+            final Booster b = booster;
+            mEngine.runOnUpdateThread(new Runnable() {
+                @Override
+                public void run()
+                {
+                    activateBoost(b.getType());
+                    b.getBody().setUserData("destroyed");
+                }
+            });
+        }
+    }
+
+    protected void makeBooster(float pX, float pY)
+    {
+        String type = "none";
+        int rng = new Random().nextInt(50);
+
+        if (rng < 4)
+        {
+            type = "shrink";
+        }
+        else if (rng < 8)
+        {
+            type = "expand";
+        }
+        else if (rng < 12)
+        {
+            type = "dball";
+        }
+        else if (rng < 13)
+        {
+            type = "life";
+        }
+
+        if (!type.equals("none"))
+        {
+            Booster booster = new Booster(pX, pY, type, mEngine.getVertexBufferObjectManager(), physicsWorld);
+            boosters.add(booster);
+            scene.attachChild(booster);
+        }
+    }
+
+    protected void activateBoost(String type)
+    {
+        switch (type)
+        {
+            case "shrink":
+            {
+                platform.setScaleX(0.7f);
+                platform.recreateBody();
+                break;
+            }
+
+            case "expand":
+            {
+                platform.setScaleX(1.3f);
+                platform.recreateBody();
+                break;
+            }
+
+            case "dball":
+            {
+                ArrayList<Ball> newBalls = new ArrayList<>();
+                for (Ball ball : balls)
+                {
+                    newBalls.add(new Ball(ball.getX(), ball.getY(), 135 + (new Random().nextInt(90)), mEngine.getVertexBufferObjectManager(), physicsWorld));
+                }
+
+                for (Ball ball : newBalls)
+                {
+                    balls.add(ball);
+                    scene.attachChild(ball);
+                }
+                break;
+            }
+
+            case "life":
+            {
+                if (gameState.getLives() < 6) gameState.addLife(mEngine);
+                break;
             }
         }
     }
@@ -361,7 +541,7 @@ public class Game {
                     }
                     else
                     {
-                        double angle = 0.8 * ((x2.getBody().getPosition().x - x1.getBody().getPosition().x) * 32 / (platform.getWidth() / 2) * 90);
+                        double angle = 0.6 * ((x2.getBody().getPosition().x - x1.getBody().getPosition().x) * 32 / (platform.getWidth() / 2) * 90);
                         x2.getBody().setLinearVelocity(Ball.computeVelocity(180 - angle));
                     }
 
@@ -369,15 +549,33 @@ public class Game {
 
                 if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("block"))
                 {
-                    float ptm=32;
-                    float diffX = (Math.abs(x2.getBody().getPosition().x - x1.getBody().getPosition().x)*ptm);
-                    if (diffX > 32)
+                    float ptm = 32;
+                    float diffX = (Math.abs(x2.getBody().getPosition().x - x1.getBody().getPosition().x) * ptm);
+                    if (diffX > 35)
                     {
                         x2.getBody().setLinearVelocity(-(x2.getBody().getLinearVelocity().x), x2.getBody().getLinearVelocity().y);
                     }
                     else
-                    x2.getBody().setLinearVelocity(x2.getBody().getLinearVelocity().x, -(x2.getBody().getLinearVelocity().y));
+                        x2.getBody().setLinearVelocity(x2.getBody().getLinearVelocity().x, -(x2.getBody().getLinearVelocity().y));
                     x1.getBody().setUserData("destroyed");
+                }
+
+                if (x2.getBody().getUserData().equals("ball") && x1.getBody().getUserData().equals("inv"))
+                {
+                    float ptm = 32;
+                    float diffX = (Math.abs(x2.getBody().getPosition().x - x1.getBody().getPosition().x) * ptm);
+                    if (diffX > 35)
+                    {
+                        x2.getBody().setLinearVelocity(-(x2.getBody().getLinearVelocity().x), x2.getBody().getLinearVelocity().y);
+                    }
+                    else
+                        x2.getBody().setLinearVelocity(x2.getBody().getLinearVelocity().x, -(x2.getBody().getLinearVelocity().y));
+                }
+
+                if (x2.getBody().getUserData().equals("booster") && x1.getBody().getUserData().equals("platform"))
+                {
+                    x2.getBody().setActive(false);
+                    x2.getBody().setUserData("activate");
                 }
 
 

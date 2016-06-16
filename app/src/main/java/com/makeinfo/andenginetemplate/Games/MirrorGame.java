@@ -1,5 +1,7 @@
 package com.makeinfo.andenginetemplate.Games;
 
+import android.content.Context;
+
 import com.makeinfo.andenginetemplate.Objects.Ball;
 import com.makeinfo.andenginetemplate.Objects.Platform;
 
@@ -14,9 +16,9 @@ public class MirrorGame extends Game {
 
     Platform mirrorPlatform;
 
-    public MirrorGame(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
+    public MirrorGame(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld, Context context)
     {
-        super(mode, level, scene, mEngine, physicsWorld);
+        super(mode, level, scene, mEngine, physicsWorld, context);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class Ball extends Sprite {
     public Ball(float pX, float pY, double angle, VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld physicsWorld)
     {
         super(pX, pY, TextureMap.getInstance().get("ball"), pVertexBufferObjectManager);
-        maxSpeed = 8;
+        maxSpeed = 10;
         body = PhysicsFactory.createCircleBody(physicsWorld, this, BodyDef.BodyType.DynamicBody, Game.BALL_FIXTURE_DEF);
         body.setUserData("ball");
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));

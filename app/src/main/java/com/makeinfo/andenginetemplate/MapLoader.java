@@ -68,6 +68,12 @@ public class MapLoader {
                                 i++;
                                 break;
                             }
+                            case 56:
+                            {
+                                levelMap[row][column] = 8;
+                                i++;
+                                break;
+                            }
 
                         }
                     }

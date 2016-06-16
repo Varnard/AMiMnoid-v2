@@ -1,5 +1,6 @@
 package com.makeinfo.andenginetemplate.Objects;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.makeinfo.andenginetemplate.Games.Game;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 
 public class Platform extends Sprite {
 
+    PhysicsWorld physicsWorld;
+
     private float maxSpeed;
     private boolean magnet;
     private float target;
@@ -28,8 +31,9 @@ public class Platform extends Sprite {
     public Platform(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld physicsWorld)
     {
         super(pX - 64, pY, TextureMap.getInstance().get("platform"), pVertexBufferObjectManager);
+        this.physicsWorld = physicsWorld;
         ptm = 32;
-        maxSpeed = 10;
+        maxSpeed = 12;
         magnet = true;
         target = pX;
         body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyDef.BodyType.KinematicBody, Game.PLATFORM_FIXTURE_DEF);
@@ -38,6 +42,24 @@ public class Platform extends Sprite {
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
         attachedBalls = new ArrayList<>();
 
+    }
+
+    public void recreateBody()
+    {
+
+        Vector2 pos = body.getPosition();
+
+        final PhysicsConnector physicsConnector = physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(this);
+        physicsWorld.unregisterPhysicsConnector(physicsConnector);
+        physicsWorld.destroyBody(body);
+
+        body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyDef.BodyType.KinematicBody, Game.PLATFORM_FIXTURE_DEF);
+
+        body.getPosition().x = pos.x;
+        body.getPosition().y = pos.y;
+        body.setUserData("platform");
+
+        physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
     }
 
     public void setMagnet(boolean magnet)

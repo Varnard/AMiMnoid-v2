@@ -1,5 +1,7 @@
 package com.makeinfo.andenginetemplate.Games;
 
+import android.content.Context;
+
 import org.andengine.engine.Engine;
 import org.andengine.entity.scene.Scene;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -8,9 +10,9 @@ public class SnakeGame extends Game {
 
     int timer;
 
-    public SnakeGame(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld)
+    public SnakeGame(String mode, int level, Scene scene, final Engine mEngine, PhysicsWorld physicsWorld, Context context)
     {
-        super(mode, level, scene, mEngine, physicsWorld);
+        super(mode, level, scene, mEngine, physicsWorld, context);
         timer = 0;
     }
 
